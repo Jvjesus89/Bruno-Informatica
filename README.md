@@ -20,10 +20,13 @@ Os estados terminais são `Cancelado` e `Concluído`. Uma vez que uma Ordem de S
 5.2 Consistência em Cenários de Borda
 Você deve identificar e tratar pelo menos 3 cenários de borda específicos do seu domínio. Exemplos do que pode ser relevante dependendo do domínio escolhido:
 •	O que acontece quando uma entidade pai é deletada e possui filhos ativos?
+Não é permitido deletar um Cliente ou Equipamento (entidades pais) que possua Ordens de Serviço ativas (entidades filhas) vinculadas a eles. Adicionalmente, restrições do banco de dados (RESTRICT) impedem a remoção de clientes/equipamentos se houver qualquer OS associada.
 
 •	O que acontece quando um recurso limitado (vagas, estoque, saldo) chega a zero?
+Não é permitido adicionar um item (produto) a uma OS se a quantidade desejada for superior à disponível no estoque (quantidade_estoque). O sistema permite criar uma OS vazia, mas bloqueia a inclusão de itens sem estoque suficiente.
 
 •	O que acontece quando se tenta modificar uma entidade em estado terminal?
+Não é permitido modificar uma OS que esteja em estado de "Cancelado" ou "Concluído".
 
 #   B r u n o - I n f o r m a t i c a 
 
