@@ -1,0 +1,5 @@
+Migration 1 (A Base): Criação das tabelas fundamentais: Cliente, Equipamento, Produto e a tabela de usuários do sistema.
+
+Migration 2 (O Core do Negócio + Índice): Adição da tabela de Ordem_de_Servico e da tabela intermediária Item_Ordem_Servico. Justificativa exigida: Adição de um índice composto ou constraint específica por conta da regra de transição de status.
+
+Migration 3 (A Evolução do Domínio / Auditoria): Criação da tabela de Solicitacao_Compra. Justificativa exigida: Essa tabela foi necessária após o entendimento de que os técnicos não podiam ficar travados quando faltasse uma peça em estoque, servindo também como histórico de demandas pendentes.
