@@ -21,7 +21,7 @@ Você deve identificar e tratar pelo menos 3 cenários de borda específicos do 
 •	O que acontece quando datas/horários se sobrepõem?
 
 •	O que acontece quando um cálculo derivado ficaria negativo ou inválido?
-#   B r u n o - I n f o r m - t i c a 
+#   B r u n o - I n f o r m a t i c a 
 
  
                                                                 

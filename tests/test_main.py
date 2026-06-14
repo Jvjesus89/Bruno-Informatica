@@ -42,7 +42,6 @@ def test_criar_cliente_cpf_invalido():
         "telefone": "11999999999"
     }
     response = client.post("/clientes/", json=payload)
-    # A validação do Pydantic deve barrar e retornar status 422
     assert response.status_code == 422
 
 # 3. Listar clientes e verificar se retorna lista
@@ -71,18 +70,16 @@ def test_cadastrar_produto_preco_negativo():
     payload = {
         "nome": "Mouse Preço Inválido",
         "descricao": "Mouse de teste",
-        "preco_venda": "-10.00",  # negativo (gt=0)
+        "preco_venda": "-10.00", 
         "quantidade_estoque": 2
     }
     response = client.post("/produtos/", json=payload)
-    # Pydantic deve barrar e retornar status 422
     assert response.status_code == 422
 
 # 6. Abrir uma Ordem de Serviço com cliente, produto, equipamento e técnico (Status inicial: ABERTA)
 def test_criar_os_sucesso():
     unique_suffix = uuid.uuid4().hex[:6]
     
-    # Prerrequisito: Cliente
     cliente_payload = {
         "nome": f"Cliente OS {unique_suffix}",
         "cpf_cnpj": generate_random_cpf(),
@@ -93,7 +90,6 @@ def test_criar_os_sucesso():
     assert cli_resp.status_code == 201
     idcliente = cli_resp.json()["idcliente"]
 
-    # Prerrequisito: Equipamento
     equip_payload = {
         "tipo": "Notebook",
         "marca": "Dell",
@@ -105,7 +101,6 @@ def test_criar_os_sucesso():
     assert equip_resp.status_code == 201
     idequipamento = equip_resp.json()["idequipamento"]
 
-    # Prerrequisito: Técnico (Usuario)
     tec_payload = {
         "nome": f"Técnico OS {unique_suffix}",
         "email": f"tec.os.{unique_suffix}@example.com",
@@ -116,7 +111,6 @@ def test_criar_os_sucesso():
     assert tec_resp.status_code == 201
     idtecnico = tec_resp.json()["id"]
 
-    # Abertura da OS
     os_payload = {
         "idcliente": idcliente,
         "idequipamento": idequipamento,
@@ -135,7 +129,6 @@ def test_criar_os_sucesso():
 def test_transicao_status_sucesso():
     unique_suffix = uuid.uuid4().hex[:6]
     
-    # Criamos os pré-requisitos para ter uma OS em mãos
     cliente_payload = {
         "nome": f"Cliente Transição {unique_suffix}",
         "cpf_cnpj": generate_random_cpf(),
@@ -172,7 +165,6 @@ def test_transicao_status_sucesso():
     os_data = client.post("/os/", json=os_payload).json()
     idos = os_data["idos"]
 
-    # Transiciona para EM_ANDAMENTO
     put_resp = client.put(f"/os/{idos}/status?novo_status=EM_ANDAMENTO")
     assert put_resp.status_code == 200
     assert put_resp.json()["status_atual"] == "EM_ANDAMENTO"
@@ -181,7 +173,6 @@ def test_transicao_status_sucesso():
 def test_transicao_status_invalida():
     unique_suffix = uuid.uuid4().hex[:6]
     
-    # Criamos os pré-requisitos
     cliente_payload = {
         "nome": f"Cliente Falha {unique_suffix}",
         "cpf_cnpj": generate_random_cpf(),
@@ -232,14 +223,12 @@ def test_buscar_os_por_id_nao_existente():
 # 10. Buscar produtos passando parâmetros de busca na URL (Filtros)
 def test_listar_produtos_com_filtro():
     unique_suffix = uuid.uuid4().hex[:6]
-    # Cadastra produto 1 barato
     p1 = {
         "nome": f"Gamer Mouse {unique_suffix}",
         "descricao": "Mouse Gamer USB",
         "preco_venda": "80.00",
         "quantidade_estoque": 10
     }
-    # Cadastra produto 2 caro
     p2 = {
         "nome": f"Monitor 4K Asus {unique_suffix}",
         "descricao": "Monitor Gamer Asus 27",
@@ -249,18 +238,15 @@ def test_listar_produtos_com_filtro():
     client.post("/produtos/", json=p1)
     client.post("/produtos/", json=p2)
 
-    # 1. Filtra por parte do nome (Asus)
     resp_nome = client.get(f"/produtos/?nome=Asus%20{unique_suffix}")
     assert resp_nome.status_code == 200
     produtos_nome = resp_nome.json()
     assert len(produtos_nome) == 1
     assert produtos_nome[0]["nome"] == p2["nome"]
 
-    # 2. Filtra por preço máximo (até 100.00)
     resp_preco = client.get(f"/produtos/?preco_maximo=100.00")
     assert resp_preco.status_code == 200
     produtos_preco = resp_preco.json()
     assert len(produtos_preco) >= 1
-    # Verifica se todos os produtos retornados respeitam o preço máximo
     for prod in produtos_preco:
         assert float(prod["preco_venda"]) <= 100.00
