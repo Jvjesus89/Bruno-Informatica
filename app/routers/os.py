@@ -15,7 +15,7 @@ from app.models.os import OS
 from app.models import Clientes, Equipamento, Usuario
 from app.schemas.os import OSCreate, OSResponse
 
-router = APIRouter(prefix="/os", tags=["OS"])
+router = APIRouter(prefix="/ordens-servico", tags=["Ordens de Serviço"])
 
 STATUS_PERMITIDOS = ["ABERTA", "EM_ANDAMENTO", "CONCLUIDA", "CANCELADA"]
 

@@ -26,7 +26,7 @@ def _create_user_and_get_token() -> dict:
         "senha": senha,
         "tipo": "TECNICO",
     }
-    resp = client.post("/usuario/", json=user_payload)
+    resp = client.post("/usuarios/", json=user_payload)
     assert resp.status_code == 201, f"Falha ao criar usuário de teste: {resp.text}"
 
     # 2. Faz login para obter o token
@@ -154,7 +154,7 @@ def test_criar_os_sucesso():
         "senha": "senha-segura",
         "tipo": "TECNICO"
     }
-    tec_resp = client.post("/usuario/", json=tec_payload)
+    tec_resp = client.post("/usuarios/", json=tec_payload)
     assert tec_resp.status_code == 201
     idtecnico = tec_resp.json()["id"]
 
@@ -166,7 +166,7 @@ def test_criar_os_sucesso():
         "descricao_defeito": f"Problema {unique_suffix}",
         "valor_total": "0.00"
     }
-    os_resp = client.post("/os/", json=os_payload, headers=headers)
+    os_resp = client.post("/ordens-servico/", json=os_payload, headers=headers)
     assert os_resp.status_code == 201
     data = os_resp.json()
     assert data["status"] == "ABERTA"
@@ -201,7 +201,7 @@ def test_transicao_status_sucesso():
         "senha": "senha-segura",
         "tipo": "TECNICO"
     }
-    idtecnico = client.post("/usuario/", json=tec_payload).json()["id"]
+    idtecnico = client.post("/usuarios/", json=tec_payload).json()["id"]
 
     os_payload = {
         "idcliente": idcliente,
@@ -211,10 +211,10 @@ def test_transicao_status_sucesso():
         "descricao_defeito": f"Lentidão extrema {unique_suffix}",
         "valor_total": "150.00"
     }
-    os_data = client.post("/os/", json=os_payload, headers=headers).json()
+    os_data = client.post("/ordens-servico/", json=os_payload, headers=headers).json()
     idos = os_data["idos"]
 
-    put_resp = client.put(f"/os/{idos}/status?novo_status=EM_ANDAMENTO", headers=headers)
+    put_resp = client.put(f"/ordens-servico/{idos}/status?novo_status=EM_ANDAMENTO", headers=headers)
     assert put_resp.status_code == 200
     assert put_resp.json()["status_atual"] == "EM_ANDAMENTO"
 
@@ -247,7 +247,7 @@ def test_transicao_status_invalida():
         "senha": "senha-segura",
         "tipo": "TECNICO"
     }
-    idtecnico = client.post("/usuario/", json=tec_payload).json()["id"]
+    idtecnico = client.post("/usuarios/", json=tec_payload).json()["id"]
 
     os_payload = {
         "idcliente": idcliente,
@@ -257,18 +257,18 @@ def test_transicao_status_invalida():
         "descricao_defeito": f"Erro de drive {unique_suffix}",
         "valor_total": "200.00"
     }
-    os_data = client.post("/os/", json=os_payload, headers=headers).json()
+    os_data = client.post("/ordens-servico/", json=os_payload, headers=headers).json()
     idos = os_data["idos"]
 
-    put_resp = client.put(f"/os/{idos}/status?novo_status=CONCLUIDA", headers=headers)
+    put_resp = client.put(f"/ordens-servico/{idos}/status?novo_status=CONCLUIDA", headers=headers)
     assert put_resp.status_code == 422
-    assert "Transição de estado inválida" in put_resp.json()["detail"]
+    assert put_resp.json()["detail"] == "Transição de estado inválida. Uma OS 'ABERTA' não pode ser alterada para 'CONCLUIDA'."
 
 
 # 9. Buscar uma Ordem de Serviço por ID não existente (404)
 def test_buscar_os_por_id_nao_existente():
     random_id = uuid.uuid4()
-    response = client.get(f"/os/{random_id}")
+    response = client.get(f"/ordens-servico/{random_id}")
     assert response.status_code == 404
 
 
@@ -324,7 +324,7 @@ def test_login_sucesso():
     senha = "minha-senha-123"
 
     # Cria o usuário
-    client.post("/usuario/", json={
+    client.post("/usuarios/", json={
         "nome": f"Login Test {unique_suffix}",
         "email": email,
         "senha": senha,
@@ -345,7 +345,7 @@ def test_login_senha_incorreta():
     email = f"wrongpw.{unique_suffix}@test.com"
 
     # Cria o usuário
-    client.post("/usuario/", json={
+    client.post("/usuarios/", json={
         "nome": f"Wrong PW {unique_suffix}",
         "email": email,
         "senha": "senha-correta",

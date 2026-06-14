@@ -9,7 +9,7 @@ from app.core.security import hash_password
 from app.models.usuario import Usuario
 from app.schemas.usuario import UsuarioCreate, UsuarioResponse
 
-router = APIRouter(prefix="/usuario", tags=["Usuario"])
+router = APIRouter(prefix="/usuarios", tags=["Usuários"])
 
 
 @router.post("/", response_model=UsuarioResponse, status_code=status.HTTP_201_CREATED)
